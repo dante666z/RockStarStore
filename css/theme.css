@@ -1,0 +1,44 @@
+:root {
+  --font-display: "Bebas Neue", Impact, sans-serif;
+  --font-body: "Montserrat", Arial, sans-serif;
+  --color-bg: #ffffff;
+  --color-surface: #d9d9d9;
+  --color-surface-strong: #cfcfcf;
+  --color-text: #050505;
+  --color-muted: #5f5f5f;
+  --color-border: #9a9a9a;
+  --color-primary: #5659e8;
+  --color-primary-contrast: #ffffff;
+  --color-danger: #b52222;
+  --color-success: #166534;
+  --color-overlay: rgba(0, 0, 0, 0.45);
+  --shadow-soft: 0 24px 60px rgba(0, 0, 0, 0.14);
+  --container: min(100% - 32px, 1600px);
+  --radius: 6px;
+  --transition: 180ms ease;
+}
+
+[data-theme="dark"] {
+  --color-bg: #070707;
+  --color-surface: #202020;
+  --color-surface-strong: #2b2b2b;
+  --color-text: #f5f5f5;
+  --color-muted: #c6c6c6;
+  --color-border: #4c4c4c;
+  --color-primary: #7377ff;
+  --color-overlay: rgba(0, 0, 0, 0.72);
+  --shadow-soft: 0 24px 70px rgba(0, 0, 0, 0.42);
+}
+
+html {
+  background: var(--color-bg);
+  color: var(--color-text);
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  transition: background var(--transition), color var(--transition);
+}
