@@ -1,0 +1,45 @@
+{
+  "products": [
+    {
+      "id": "p001",
+      "slug": "no-excuses",
+      "name": "No excuses",
+      "description": "Playera streetwear con corte relajado y grafico frontal.",
+      "category": "Camisas",
+      "image": "",
+      "badge": "Nuevo",
+      "featured": true,
+      "featured_order": 1,
+      "show_home": true,
+      "home_order": 1,
+      "status": "active",
+      "variants": [
+        {
+          "id": "v001-s",
+          "size": "S",
+          "price": 20,
+          "stock": 5,
+          "sku": "NOEX-S",
+          "available": true
+        },
+        {
+          "id": "v001-m",
+          "size": "M",
+          "price": 20,
+          "stock": 8,
+          "sku": "NOEX-M",
+          "available": true
+        }
+      ]
+    }
+  ],
+  "featuredProducts": [],
+  "homeProducts": [],
+  "categories": ["Camisas"],
+  "meta": {
+    "fromCache": false,
+    "refreshed": false,
+    "generatedAt": "",
+    "cacheTimeSeconds": 14400
+  }
+}
