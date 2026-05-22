@@ -22,20 +22,20 @@ Edita `js/config.js`:
 
 ```js
 const CONFIG = {
-  API_URL: "",
+  API_URL: "https://script.google.com/macros/s/AKfycbxJJ3cqk2NY7pcOqQEktkamIz-4G7CRp8bGDKCb9EztDZPi-68jaDPgiyqzmTfkNuNZrQ/exec",
   WHATSAPP_NUMBER: "13238023749",
   STORE_NAME: "RockStar Store",
   CURRENCY: "USD",
   LOCALE: "es-MX",
   THEME_DEFAULT: "light",
-  ENABLE_MOCK_DATA: true,
+  ENABLE_MOCK_DATA: false,
   ASSETS_BASE_PATH: "./assets/page",
   PLACEHOLDER_IMAGE: "./assets/page/banner_logo.png",
   DRIVE_IMAGE_SIZE: "w1000"
 };
 ```
 
-Mientras `ENABLE_MOCK_DATA` sea `true`, la tienda usa `js/mock-data.js`. Cuando tengas el Apps Script publicado, coloca la URL `/exec` en `API_URL` y cambia `ENABLE_MOCK_DATA` a `false`.
+Actualmente la tienda usa el catalogo real desde Apps Script. Si necesitas trabajar sin conexion al backend, cambia temporalmente `ENABLE_MOCK_DATA` a `true` y `API_URL` a `""`.
 
 ## WhatsApp
 
@@ -88,6 +88,20 @@ El mini backend esta en `apps-script/Code.gs`. Usa:
 - cache de 4 horas
 - endpoint normal `/exec`
 - endpoint refresh `/exec?refresh=true&key=rockStar2026`
+
+URL publicada:
+
+```txt
+https://script.google.com/macros/s/AKfycbxJJ3cqk2NY7pcOqQEktkamIz-4G7CRp8bGDKCb9EztDZPi-68jaDPgiyqzmTfkNuNZrQ/exec
+```
+
+Refresh cache:
+
+```txt
+https://script.google.com/macros/s/AKfycbxJJ3cqk2NY7pcOqQEktkamIz-4G7CRp8bGDKCb9EztDZPi-68jaDPgiyqzmTfkNuNZrQ/exec?refresh=true&key=rockStar2026
+```
+
+Esta URL `/exec` es la que usa `CONFIG.API_URL`; `ENABLE_MOCK_DATA` queda en `false` para consumir el catalogo real.
 
 El `SPREADSHEET_ID` se configura en Apps Script, no en el frontend.
 

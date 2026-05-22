@@ -101,6 +101,11 @@
   will-change: opacity, transform;
 }
 
+.product-grid:not(.reveal-section) .reveal-item {
+  opacity: 1;
+  transform: none;
+}
+
 .reveal-section.is-visible {
   animation: slideUpSoft 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
