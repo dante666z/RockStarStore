@@ -1,218 +1,303 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es" data-theme="light">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>RockStar Store | Streetwear premium</title>
-    <meta name="description"
-        content="RockStar Store: tienda digital streetwear con drops, camisas, hoodies y accesorios.">
+    <meta name="description" content="RockStar Store: tienda digital streetwear con drops, camisas, hoodies y accesorios. Compra rapido por WhatsApp.">
+    <meta property="og:title" content="RockStar Store">
+    <meta property="og:description" content="Streetwear premium, catalogo actualizado y pedidos por WhatsApp.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="./assets/page/Banner_background.png">
     <link rel="icon" type="image/png" href="./assets/page/favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;700;800;900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="./css/theme.css">
     <link rel="stylesheet" href="./css/animations.css">
     <link rel="stylesheet" href="./css/main.css">
-</head>
-
-<body>
+  </head>
+  <body x-data="appStore('home')" x-init="init(); setTimeout(() => window.lucide && window.lucide.createIcons(), 0)" x-cloak>
     <div class="site-shell">
-        <header class="site-header">
-            <div class="container-wide nav-inner">
-                <a href="./index.html" class="header-logo-link" aria-label="Ir al inicio">
-                    <img src="./assets/page/footer_logo.png" alt="RockStar Store">
+      <header class="site-header">
+        <div class="container-wide nav-inner">
+          <a class="header-logo-link" href="./index.html" aria-label="Ir al inicio">
+            <img src="./assets/page/footer_logo.png" alt="RockStar Store">
+          </a>
+          <nav class="nav-links" aria-label="Navegacion principal">
+            <a class="nav-link" href="./tienda.html">Tienda</a>
+            <a class="nav-link" href="#sobre-nosotros">Sobre nosotros</a>
+            <a class="nav-link" href="#contacto">Contacto</a>
+          </nav>
+          <div class="nav-actions">
+            <button class="icon-button" type="button" title="Cambiar tema" @click="toggleTheme()">
+              <i class="bi" :class="theme === 'dark' ? 'bi-sun' : 'bi-moon-stars'" aria-hidden="true"></i>
+            </button>
+            <button class="icon-button" type="button" title="Abrir carrito" @click="openCart()">
+              <i data-lucide="shopping-bag" aria-hidden="true"></i>
+              <span class="cart-count" :class="{ 'has-items': cartCount() > 0 }" x-show="cartCount() > 0" x-text="cartCount()"></span>
+            </button>
+          </div>
+        </div>
+      </header>
 
-                </a>
-                <nav class="nav-links" aria-label="Navegacion principal">
-                    <a href="./tienda.html" class="nav-link">Tienda</a>
-                    <a href="#sobre-nosotros" class="nav-link">Sobre nosotros</a>
-                    <a href="#contacto" class="nav-link">Contacto</a>
-                </nav>
-                <div class="nav-actions">
-                    <button class="icon-button" type="button" title="Cambiar tema">
-                        <i class="bi bi-moon-stars" aria-hidden="true"></i>
+      <main>
+        <section class="hero" aria-label="RockStar Store">
+          <div class="hero-stage">
+            <img class="hero-bg" src="./assets/page/Banner_background.png" alt="Textil estampado RockStar">
+            <div class="hero-content">
+              <img class="hero-logo fade-up" src="./assets/page/banner_logo.png" alt="RockStar Store">
+              <div class="featured-carousel" aria-label="Productos destacados" @mouseenter="stopFeaturedCarousel()" @mouseleave="startFeaturedCarousel()">
+                <template x-if="loading">
+                  <div class="loading-state w-100">Cargando destacados...</div>
+                </template>
+                <div class="featured-viewport" x-show="!loading && featuredProducts.length">
+                  <div class="featured-track" :style="featuredTrackStyle()">
+                    <template x-for="product in featuredProducts" :key="product.id">
+                      <a class="featured-card" href="./tienda.html" :aria-label="`Ver ${product.name}`">
+                        <img :src="imageFor(product)" :alt="product.name" @error="handleImageError($event)">
+                      </a>
+                    </template>
+                  </div>
+                </div>
+                <div class="featured-dots" x-show="featuredProducts.length > 1" aria-label="Cambiar destacado">
+                  <template x-for="(product, index) in featuredProducts" :key="product.id">
+                    <button
+                      class="featured-dot"
+                      type="button"
+                      :class="{ 'is-active': featuredIndex === index }"
+                      :aria-label="`Ver destacado ${index + 1}`"
+                      @click="goToFeatured(index)">
                     </button>
-                    <button class="icon-button" type="button" title="Carrito">
-                        <i data-lucide="shopping-bag" aria-hidden="true"></i>
-                    </button>
+                  </template>
                 </div>
+              </div>
             </div>
-        </header>
+          </div>
+        </section>
 
-        <main>
-            <section class="hero" aria-label="RockStar Store">
-                <div class="hero-stage">
-                    <img class="hero-bg" src="./assets/page/Banner_background.png" alt="Textil estampado RockStar">
-                    <div class="hero-content">
-                        <img src="./assets/page/banner_logo.png" alt="RockStar Store" class="hero-logo">
-                        <div class="featured-carousel">
-                            <div class="featured-viewport">
-                                <div class="featured-track">
-                                    <a href="./tienda.html" class="featured-card">
-                                        <img src="./assets/page/banner_logo.png" alt="Producto destacado">
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="featured-dots">
-                                <button class="featured-dot is-active" type="button" aria-label="Destacado 1"></button>
-                                <button class="featured-dot" type="button" aria-label="Destacado 2"></button>
-                                <button class="featured-dot" type="button" aria-label="Destacado 3"></button>
-                            </div>
-                        </div>
-                    </div>
+        <section class="section-block container-wide reveal-section" data-reveal aria-labelledby="home-products-title">
+          <h1 class="section-title" id="home-products-title">Tienda</h1>
+          <template x-if="error">
+            <div class="error-state" x-text="error"></div>
+          </template>
+          <template x-if="loading && !error">
+            <div class="loading-state">Cargando productos...</div>
+          </template>
+          <div class="product-grid" x-show="!loading && !error">
+            <template x-for="product in homeProducts" :key="product.id">
+              <article class="product-card reveal-item">
+                <div class="product-media">
+                  <span class="product-badge" x-show="product.badge" x-text="product.badge"></span>
+                  <img :src="imageFor(product)" :alt="product.name" @error="handleImageError($event)">
                 </div>
-            </section>
-
-            <section class="section-block container-wide reveal-section" data-reveal
-                aria-labelledby="home-products-title">
-                <h1 class="section-title" id="home-products-title">Tienda</h1>
-                <div class="product-grid">
-                    <article class="product-card reveal-item">
-                        <div class="product-media"><img class="is-default-image" src="./assets/page/banner_logo.png"
-                                alt="No excuses"></div>
-                        <div class="product-info">
-                            <h2 class="product-name">No excuses</h2>
-                            <p class="product-price">$20.00 USD</p>
-                        </div>
-                    </article>
-                    <article class="product-card reveal-item">
-                        <div class="product-media"><img class="is-default-image" src="./assets/page/banner_logo.png"
-                                alt="Sad Boyz"></div>
-                        <div class="product-info">
-                            <h2 class="product-name">Sad Boyz</h2>
-                            <p class="product-price">$20.00 USD</p>
-                        </div>
-                    </article>
-                    <article class="product-card reveal-item">
-                        <div class="product-media"><img class="is-default-image" src="./assets/page/banner_logo.png"
-                                alt="El Angel Azul"></div>
-                        <div class="product-info">
-                            <h2 class="product-name">El Angel Azul</h2>
-                            <p class="product-price">$20.00 USD</p>
-                        </div>
-                    </article>
-                    <article class="product-card reveal-item">
-                        <div class="product-media"><img class="is-default-image" src="./assets/page/banner_logo.png"
-                                alt="Amiri"></div>
-                        <div class="product-info">
-                            <h2 class="product-name">Amiri</h2>
-                            <p class="product-price">$20.00 USD</p>
-                        </div>
-                    </article>
-                    <article class="product-card reveal-item">
-                        <div class="product-media"><img class="is-default-image" src="./assets/page/banner_logo.png"
-                                alt="Godzilla Drift"></div>
-                        <div class="product-info">
-                            <h2 class="product-name">Godzilla Drift</h2>
-                            <p class="product-price">$20.00 USD</p>
-                        </div>
-                    </article>
-                    <article class="product-card reveal-item">
-                        <div class="product-media"><img class="is-default-image" src="./assets/page/banner_logo.png"
-                                alt="El Azul"></div>
-                        <div class="product-info">
-                            <h2 class="product-name">El Azul</h2>
-                            <p class="product-price">$20.00 USD</p>
-                        </div>
-                    </article>
+                <div class="product-info">
+                  <h2 class="product-name" x-text="product.name"></h2>
+                  <p class="product-price" x-text="priceLabel(product)"></p>
+                  <p class="product-desc" x-text="product.description"></p>
+                  <div class="size-row" aria-label="Seleccionar talla">
+                    <template x-for="variant in product.variants" :key="variant.id">
+                      <button
+                        class="size-pill"
+                        type="button"
+                        :class="{ 'is-active': isVariantSelected(product, variant), 'is-disabled': !variant.available || Number(variant.stock) <= 0 }"
+                        :disabled="!variant.available || Number(variant.stock) <= 0"
+                        @click="selectVariant(product, variant)"
+                        x-text="variant.size">
+                      </button>
+                    </template>
+                  </div>
+                  <button class="primary-button product-action" type="button" :disabled="!productHasStock(product)" @click="addToCart(product, selectedVariant(product))">
+                    Agregar
+                  </button>
                 </div>
+              </article>
+            </template>
+          </div>
 
-                <div class="cta-band reveal-item">
-                    <h2>Drop completo</h2>
-                    <a class="primary-button d-inline-flex align-items-center" href="./tienda.html">Ir a tienda</a>
+          <div class="cta-band reveal-item">
+            <h2>Drop completo</h2>
+            <a class="primary-button d-inline-flex align-items-center" href="./tienda.html">Ir a tienda</a>
+          </div>
+        </section>
+
+        <div class="banner-line reveal-section reveal-banner" data-reveal>
+          <img src="./assets/page/Banner_nosotros.png" alt="Accesorios y gorras RockStar">
+        </div>
+
+        <section class="section-block container-wide reveal-section" data-reveal id="sobre-nosotros" aria-labelledby="about-title">
+          <h2 class="section-title" id="about-title">Sobre nosotros</h2>
+          <div class="about-grid">
+            <img class="reveal-item" src="./assets/page/Sobre_nosotros_1.png" alt="Proceso de estampado textil">
+            <p class="about-copy reveal-item">
+              Rockstar es una tienda de ropa en linea con prendas para distintos estilos, edades y ocasiones. Creamos una experiencia de compra facil, rapida y confiable, con catalogo digital actualizado y pedidos directos por WhatsApp.
+            </p>
+          </div>
+        </section>
+
+        <div class="banner-line reveal-section reveal-banner" data-reveal>
+          <img src="./assets/page/Banner_contacto.png" alt="Detalle de serigrafia RockStar">
+        </div>
+
+        <section class="section-block container-wide reveal-section" data-reveal id="contacto" aria-labelledby="contact-title">
+          <h2 class="section-title" id="contact-title">Contacto</h2>
+          <div class="contact-grid">
+            <form class="contact-card reveal-item" @submit.prevent="sendContactWhatsApp()" novalidate>
+              <label class="form-label" for="contact-name">Nombre</label>
+              <input class="field" id="contact-name" type="text" autocomplete="name" x-model="contactForm.name">
+              <p class="invalid-hint" x-show="contactTouched && !contactForm.name.trim()">Tu nombre es necesario.</p>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label" for="contact-phone">Telefono</label>
+                  <input class="field" id="contact-phone" type="tel" autocomplete="tel" x-model="contactForm.phone">
+                  <p class="invalid-hint" x-show="contactTouched && !contactForm.phone.trim()">Agrega un telefono.</p>
                 </div>
-            </section>
+                <div class="col-md-6">
+                  <label class="form-label" for="contact-email">Correo</label>
+                  <input class="field" id="contact-email" type="email" autocomplete="email" x-model="contactForm.email">
+                  <p class="invalid-hint" x-show="contactTouched && !contactForm.email.trim()">Agrega un correo.</p>
+                  <p class="invalid-hint" x-show="contactTouched && contactForm.email.trim() && !emailValid(contactForm.email)">Escribe un correo valido.</p>
+                </div>
+              </div>
+              <label class="form-label mt-3" for="contact-message">Mensaje</label>
+              <textarea class="field" id="contact-message" rows="7" x-model="contactForm.message"></textarea>
+              <p class="invalid-hint" x-show="contactTouched && !contactForm.message.trim()">Escribe tu mensaje.</p>
+              <button class="secondary-button d-block mx-auto mt-4" type="submit">Enviar por WhatsApp</button>
+            </form>
+            <img class="reveal-item" src="./assets/page/Contacto_1.png" alt="Interior de tienda con ropa en exhibicion">
+          </div>
+        </section>
+      </main>
 
-            <div class="banner-line reveal-section reveal-banner" data-reveal>
-                <img src="./assets/page/Banner_nosotros.png" alt="Accesorios y gorras RockStar">
+      <footer class="site-footer reveal-section" data-reveal>
+        <div class="footer-main">
+          <div class="footer-column">
+            <img class="footer-logo" src="./assets/page/footer_logo.png" alt="RockStar Store">
+          </div>
+          <div class="footer-column footer-links">
+            <a href="#">Politicas del servicio</a>
+            <a href="#">Terminos y condiciones</a>
+          </div>
+          <div class="footer-column">
+            <div>
+              <p class="mb-0 fs-4">Redes Sociales</p>
+              <div class="socials">
+                <img src="./assets/page/brand-facebook.png" alt="Facebook">
+                <img src="./assets/page/brand-instagram.png" alt="Instagram">
+                <img src="./assets/page/brand-tiktok.png" alt="TikTok">
+              </div>
             </div>
+          </div>
+        </div>
+        <div class="footer-copy">Todos los Derechos Reservados, Rockstar 2026</div>
+      </footer>
 
-            <section class="section-block container-wide reveal-section" data-reveal id="sobre-nosotros"
-                aria-labelledby="about-title">
-                <h2 class="section-title" id="about-title">Sobre nosotros</h2>
-                <div class="about-grid">
-                    <img class="reveal-item" src="./assets/page/Sobre_nosotros_1.png" alt="Proceso de estampado textil">
-                    <p class="about-copy reveal-item">Rockstar es una tienda de ropa en linea con prendas para distintos
-                        estilos, edades y ocasiones. Creamos una experiencia de compra facil, rapida y confiable, con
-                        catalogo digital actualizado.</p>
+      <template x-if="isCartOpen">
+        <div class="drawer-backdrop" @click="closeCart()"></div>
+      </template>
+      <aside class="cart-drawer" :class="{ 'is-open': isCartOpen }" aria-label="Carrito">
+        <div class="drawer-head">
+          <h2 class="drawer-title">Carrito</h2>
+          <button class="icon-button" type="button" @click="closeCart()" title="Cerrar carrito">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="drawer-body">
+          <template x-if="!items.length">
+            <div class="empty-state">Tu carrito esta vacio.</div>
+          </template>
+          <template x-for="item in items" :key="item.variantId">
+            <div class="cart-item">
+              <div class="cart-thumb">
+                <img :src="getDriveImageUrl(item.image)" :alt="item.name" @error="handleImageError($event)">
+              </div>
+              <div>
+                <h3 x-text="item.name"></h3>
+                <p class="cart-meta">
+                  <span x-text="`Talla ${item.selectedSize}`"></span>
+                  <span x-text="` · ${formatMoney(item.price)}`"></span>
+                </p>
+                <div class="qty-row">
+                  <button class="qty-button" type="button" @click="decrementItem(item)">-</button>
+                  <strong x-text="item.quantity"></strong>
+                  <button class="qty-button" type="button" @click="incrementItem(item)">+</button>
+                  <button class="remove-button" type="button" @click="removeItem(item)">Eliminar</button>
                 </div>
-            </section>
-
-            <div class="banner-line reveal-section reveal-banner" data-reveal>
-                <img src="./assets/page/Banner_contacto.png" alt="Detalle de serigrafia RockStar">
+              </div>
             </div>
+          </template>
+        </div>
+        <div class="drawer-foot">
+          <div class="total-row">
+            <span>Total</span>
+            <span x-text="formatMoney(cartTotal())"></span>
+          </div>
+          <button class="primary-button w-100" type="button" :disabled="!items.length" @click="openCheckout()">Checkout</button>
+          <button class="secondary-button w-100 mt-2" type="button" x-show="items.length" @click="clearCart()">Limpiar carrito</button>
+        </div>
+      </aside>
 
-            <section class="section-block container-wide reveal-section" data-reveal id="contacto"
-                aria-labelledby="contact-title">
-                <h2 class="section-title" id="contact-title">Contacto</h2>
-                <div class="contact-grid">
-                    <form class="contact-card reveal-item">
-                        <label class="form-label" for="contact-name">Nombre</label>
-                        <input class="field mb-3" id="contact-name" type="text">
-                        <div class="row g-3">
-                            <div class="col-md-6"><label class="form-label" for="contact-phone">Telefono</label><input
-                                    class="field" id="contact-phone" type="tel"></div>
-                            <div class="col-md-6"><label class="form-label" for="contact-email">Correo</label><input
-                                    class="field" id="contact-email" type="email"></div>
-                        </div>
-                        <label class="form-label mt-3" for="contact-message">Mensaje</label>
-                        <textarea class="field" id="contact-message" rows="7"></textarea>
-                        <button class="secondary-button d-block mx-auto mt-4" type="button">Enviar</button>
-                    </form>
-                    <img class="reveal-item" src="./assets/page/Contacto_1.png" alt="Interior de tienda">
-                </div>
-            </section>
-        </main>
-
-        <footer class="site-footer reveal-section" data-reveal>
-            <div class="footer-main">
-                <div class="footer-column"><img class="footer-logo" src="./assets/page/footer_logo.png"
-                        alt="RockStar Store"></div>
-                <div class="footer-column footer-links"><a href="#">Politicas del servicio</a><a href="#">Terminos y
-                        condiciones</a></div>
-                <div class="footer-column">
-                    <div>
-                        <p class="mb-0 fs-4">Redes Sociales</p>
-                        <div class="socials">
-                            <img src="./assets/page/brand-facebook.png" alt="Facebook">
-                            <img src="./assets/page/brand-instagram.png" alt="Instagram">
-                            <img src="./assets/page/brand-tiktok.png" alt="TikTok">
-                        </div>
-                    </div>
-                </div>
+      <template x-if="isCheckoutOpen">
+        <div class="modal-backdrop-custom"></div>
+      </template>
+      <section class="checkout-modal" x-show="isCheckoutOpen" x-transition aria-label="Checkout">
+        <div class="modal-head">
+          <h2 class="modal-title-custom">Checkout</h2>
+          <button class="icon-button" type="button" @click="closeCheckout()" title="Cerrar checkout">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="modal-body-custom">
+          <div class="checkout-grid">
+            <div>
+              <h3 class="h5 fw-bold mb-3">Resumen</h3>
+              <div class="summary-list">
+                <template x-for="item in items" :key="item.variantId">
+                  <div class="summary-line">
+                    <span><strong x-text="item.name"></strong><br><small x-text="`Talla ${item.selectedSize} · Cantidad ${item.quantity}`"></small></span>
+                    <strong x-text="formatMoney(subtotal(item))"></strong>
+                  </div>
+                </template>
+              </div>
             </div>
-            <div class="footer-copy">Todos los Derechos Reservados, Rockstar 2026</div>
-        </footer>
+            <form @submit.prevent="sendWhatsAppOrder()">
+              <label class="form-label" for="checkout-name">Nombre completo</label>
+              <input class="field mb-2" id="checkout-name" type="text" x-model="checkout.name" autocomplete="name">
+              <p class="invalid-hint" x-show="checkoutTouched && !checkout.name.trim()">Tu nombre es necesario.</p>
+              <label class="form-label mt-2" for="checkout-phone">Telefono</label>
+              <input class="field mb-2" id="checkout-phone" type="tel" x-model="checkout.phone" autocomplete="tel">
+              <p class="invalid-hint" x-show="checkoutTouched && !checkout.phone.trim()">Agrega un telefono.</p>
+              <label class="form-label mt-2" for="checkout-address">Direccion o punto de entrega</label>
+              <textarea class="field mb-2" id="checkout-address" rows="3" x-model="checkout.address"></textarea>
+              <p class="invalid-hint" x-show="checkoutTouched && !checkout.address.trim()">Indica donde entregar.</p>
+              <label class="form-label mt-2" for="checkout-notes">Notas/referencias</label>
+              <textarea class="field" id="checkout-notes" rows="3" x-model="checkout.notes"></textarea>
+            </form>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <div class="total-row">
+            <span>Total final</span>
+            <span x-text="formatMoney(cartTotal())"></span>
+          </div>
+          <button class="primary-button w-100" type="button" @click="sendWhatsAppOrder()">Enviar pedido por WhatsApp</button>
+        </div>
+      </section>
+
+      <div class="feedback-toast" x-show="feedback" x-transition x-text="feedback"></div>
     </div>
 
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-    <script>
-        window.lucide && window.lucide.createIcons();
-
-        const revealSections = document.querySelectorAll("[data-reveal]");
-
-        if (!("IntersectionObserver" in window)) {
-            revealSections.forEach((section) => section.classList.add("is-visible"));
-        } else {
-            const revealObserver = new IntersectionObserver((entries) => {
-                entries.forEach((entry) => {
-                    if (!entry.isIntersecting) return;
-                    entry.target.classList.add("is-visible");
-                    revealObserver.unobserve(entry.target);
-                });
-            }, {
-                threshold: 0.18,
-                rootMargin: "0px 0px -8% 0px"
-            });
-
-            revealSections.forEach((section) => revealObserver.observe(section));
-        }
-    </script>
-</body>
-
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+    <script src="./js/config.js" defer></script>
+    <script src="./js/utils.js" defer></script>
+    <script src="./js/mock-data.js" defer></script>
+    <script src="./js/api.js" defer></script>
+    <script src="./js/theme.js" defer></script>
+    <script src="./js/cart.js" defer></script>
+    <script src="./js/app.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+  </body>
 </html>
