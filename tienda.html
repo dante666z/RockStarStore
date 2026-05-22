@@ -28,17 +28,20 @@
 <body x-data="appStore('store')" x-init="init(); setTimeout(() => window.lucide && window.lucide.createIcons(), 0)"
     x-cloak>
     <div class="site-shell">
-        <header class="site-header store-header">
+        <header class="site-header store-header" @keydown.escape.window="closeMobileMenu()">
             <div class="container-wide nav-inner">
                 <a class="header-logo-link" href="./index.html" aria-label="Ir al inicio">
                     <img src="./assets/page/footer_logo.png" alt="RockStar Store">
                 </a>
-                <nav class="nav-links" aria-label="Navegacion principal">
-                    <a class="nav-link" href="./tienda.html">Tienda</a>
-                    <a class="nav-link" href="./index.html#sobre-nosotros">Sobre nosotros</a>
-                    <a class="nav-link" href="./index.html#contacto">Contacto</a>
+                <nav class="nav-links" id="primary-navigation" :class="{ 'is-open': mobileMenuOpen }" aria-label="Navegacion principal">
+                    <a class="nav-link" href="./tienda.html" @click="closeMobileMenu()">Tienda</a>
+                    <a class="nav-link" href="./index.html#sobre-nosotros" @click="closeMobileMenu()">Sobre nosotros</a>
+                    <a class="nav-link" href="./index.html#contacto" @click="closeMobileMenu()">Contacto</a>
                 </nav>
                 <div class="nav-actions">
+                    <button class="icon-button menu-toggle" type="button" title="Abrir menu" aria-controls="primary-navigation" :aria-expanded="mobileMenuOpen.toString()" @click.stop="toggleMobileMenu()">
+                        <i class="bi" :class="mobileMenuOpen ? 'bi-x-lg' : 'bi-list'" aria-hidden="true"></i>
+                    </button>
                     <button class="icon-button" type="button" title="Cambiar tema" @click="toggleTheme()">
                         <i class="bi" :class="theme === 'dark' ? 'bi-sun' : 'bi-moon-stars'" aria-hidden="true"></i>
                     </button>
@@ -83,10 +86,10 @@
                 </div>
             </template>
 
-            <section class="product-grid reveal-section" data-reveal
+            <section class="product-grid"
                 x-show="!loading && !error && filteredProducts().length" aria-label="Catalogo completo">
                 <template x-for="product in filteredProducts()" :key="product.id">
-                    <article class="product-card reveal-item">
+                    <article class="product-card">
                         <div class="product-media">
                             <span class="product-badge" x-show="product.badge" x-text="product.badge"></span>
                             <img :src="imageFor(product)" :alt="product.name" @error="handleImageError($event)">

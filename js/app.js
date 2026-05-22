@@ -14,6 +14,7 @@ function appStore(page = "home") {
     selectedVariants: {},
     featuredIndex: 0,
     featuredTimer: null,
+    mobileMenuOpen: false,
     contactTouched: false,
     contactForm: {
       name: "",
@@ -38,7 +39,10 @@ function appStore(page = "home") {
         this.products = catalog.products || [];
         this.featuredProducts = catalog.featuredProducts || [];
         this.featuredIndex = 0;
-        this.homeProducts = (catalog.homeProducts || []).slice(0, CONFIG.HOME_PRODUCTS_LIMIT);
+        this.homeProducts = (catalog.homeProducts?.length ? catalog.homeProducts : this.products).slice(
+          0,
+          CONFIG.HOME_PRODUCTS_LIMIT
+        );
         this.categories = catalog.categories || this.buildCategories(this.products);
       } catch (error) {
         this.error = "No pudimos cargar el catalogo. Intenta de nuevo en un momento.";
@@ -76,6 +80,14 @@ function appStore(page = "home") {
       this.startFeaturedCarousel();
     },
 
+    toggleMobileMenu() {
+      this.mobileMenuOpen = !this.mobileMenuOpen;
+    },
+
+    closeMobileMenu() {
+      this.mobileMenuOpen = false;
+    },
+
     featuredTrackStyle() {
       return `transform: translateX(-${this.featuredIndex * 100}%);`;
     },
@@ -104,6 +116,15 @@ function appStore(page = "home") {
         );
 
         sections.forEach((section) => observer.observe(section));
+
+        window.setTimeout(() => {
+          sections.forEach((section) => {
+            if (!section.classList.contains("is-visible")) {
+              section.classList.add("is-visible");
+              observer.unobserve(section);
+            }
+          });
+        }, 1200);
       });
     },
 

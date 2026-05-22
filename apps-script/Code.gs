@@ -14,7 +14,7 @@ function doGet(e) {
     e &&
     e.parameter &&
     String(e.parameter.refresh || "").toLowerCase().trim() === "true";
-  
+
   const refreshKey =
     e &&
     e.parameter &&
@@ -28,8 +28,6 @@ function doGet(e) {
       !CONFIG.REFRESH_KEY ||
       refreshKey.toLowerCase() === CONFIG.REFRESH_KEY.toLowerCase()
     );
-  isRefreshAllowed = true;
-  shouldRefresh = true;
   Logger.log("===== REQUEST INFO =====");
   Logger.log("shouldRefresh: " + shouldRefresh);
   Logger.log("refreshKey recibido: " + refreshKey);
@@ -184,7 +182,7 @@ function transformVariants(variants) {
     .map(variant => ({
       id: toNumber(variant.id),
       product_id: toNumber(variant.product_id),
-      size: toStringValue(variant.size),
+      size: toStringValue(variant.size || variant.product_size),
       price: toNumber(variant.price),
       stock: toNumber(variant.stock),
       sku: toStringValue(variant.sku),

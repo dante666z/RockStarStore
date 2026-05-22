@@ -37,6 +37,8 @@ button {
 }
 
 .site-header {
+  position: relative;
+  z-index: 20;
   background: var(--color-bg);
   transition: background var(--transition);
 }
@@ -103,6 +105,10 @@ button {
   display: flex;
   align-items: center;
   gap: clamp(12px, 2vw, 28px);
+}
+
+.menu-toggle {
+  display: none;
 }
 
 .icon-button {
@@ -220,7 +226,7 @@ button {
 
 .featured-card img {
   width: 80%;
-  max-height: 260px;
+  max-height: 330px;
   object-fit: contain;
 }
 
@@ -836,14 +842,37 @@ button {
   }
 
   .nav-inner {
+    position: relative;
     min-height: 88px;
     gap: 10px;
   }
 
   .nav-links {
-    gap: 10px;
-    max-width: calc(100% - 190px);
-    overflow-x: auto;
+    position: absolute;
+    top: calc(100% - 4px);
+    left: 0;
+    right: 0;
+    z-index: 30;
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 0;
+    max-width: none;
+    overflow: hidden;
+    padding: 10px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .site-header.store-header .nav-links {
+    background: var(--color-surface);
+  }
+
+  .nav-links.is-open {
+    display: flex;
   }
 
   .header-logo-link img {
@@ -851,8 +880,26 @@ button {
   }
 
   .nav-link {
-    white-space: nowrap;
-    font-size: 1.2rem;
+    width: 100%;
+    padding: 13px 14px;
+    white-space: normal;
+    font-size: 1.35rem;
+    text-align: left;
+    border-radius: calc(var(--radius) - 4px);
+  }
+
+  .nav-link:hover,
+  .nav-link:focus {
+    background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+    transform: none;
+  }
+
+  .nav-actions {
+    gap: 6px;
+  }
+
+  .menu-toggle {
+    display: inline-grid;
   }
 
   .hero {

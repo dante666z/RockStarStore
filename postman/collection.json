@@ -1,0 +1,153 @@
+{
+  "info": {
+    "name": "RockStar Store Apps Script API",
+    "_postman_id": "7a5dbf4d-9f4b-4bd7-9c9c-rockstarstore001",
+    "description": "Pruebas del backend Apps Script para catalogo RockStar Store.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://script.google.com/macros/s/AKfycbxJJ3cqk2NY7pcOqQEktkamIz-4G7CRp8bGDKCb9EztDZPi-68jaDPgiyqzmTfkNuNZrQ/exec",
+      "type": "string"
+    },
+    {
+      "key": "refreshKey",
+      "value": "rockStar2026",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Get Catalog",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": "{{baseUrl}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const json = pm.response.json();",
+              "",
+              "pm.test('Tiene products', function () {",
+              "  pm.expect(json).to.have.property('products');",
+              "  pm.expect(json.products).to.be.an('array');",
+              "});",
+              "",
+              "pm.test('Tiene featuredProducts', function () {",
+              "  pm.expect(json).to.have.property('featuredProducts');",
+              "  pm.expect(json.featuredProducts).to.be.an('array');",
+              "});",
+              "",
+              "pm.test('Tiene homeProducts', function () {",
+              "  pm.expect(json).to.have.property('homeProducts');",
+              "  pm.expect(json.homeProducts).to.be.an('array');",
+              "});",
+              "",
+              "pm.test('Tiene categories', function () {",
+              "  pm.expect(json).to.have.property('categories');",
+              "  pm.expect(json.categories).to.be.an('array');",
+              "});",
+              "",
+              "pm.test('Producto tiene variantes con size', function () {",
+              "  pm.expect(json.products.length).to.be.above(0);",
+              "  const product = json.products[0];",
+              "  pm.expect(product).to.have.property('variants');",
+              "  pm.expect(product.variants).to.be.an('array');",
+              "  pm.expect(product.variants.length).to.be.above(0);",
+              "  pm.expect(product.variants[0]).to.have.property('size');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Refresh Catalog Cache",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": "{{baseUrl}}?refresh=true&key={{refreshKey}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const json = pm.response.json();",
+              "",
+              "pm.test('Refresh autorizado', function () {",
+              "  pm.expect(json).to.have.property('meta');",
+              "  pm.expect(json.meta).to.have.property('refreshed', true);",
+              "});",
+              "",
+              "pm.test('Tiene products despues del refresh', function () {",
+              "  pm.expect(json).to.have.property('products');",
+              "  pm.expect(json.products).to.be.an('array');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Refresh With Wrong Key",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": "{{baseUrl}}?refresh=true&key=wrong-key"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const json = pm.response.json();",
+              "",
+              "pm.test('No refresca con key incorrecta', function () {",
+              "  pm.expect(json).to.have.property('meta');",
+              "  pm.expect(json.meta.refreshed).to.not.eql(true);",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
