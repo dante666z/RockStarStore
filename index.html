@@ -5,10 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>RockStar Store | Streetwear premium</title>
     <meta name="description" content="RockStar Store: tienda digital streetwear con drops, camisas, hoodies y accesorios. Compra rapido por WhatsApp.">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#070707" media="(prefers-color-scheme: dark)">
+    <meta name="color-scheme" content="light dark">
     <meta property="og:title" content="RockStar Store">
     <meta property="og:description" content="Streetwear premium, catalogo actualizado y pedidos por WhatsApp.">
     <meta property="og:type" content="website">
     <meta property="og:image" content="./assets/page/Banner_background.png">
+    <meta property="og:image:alt" content="RockStar Store streetwear">
+    <meta property="og:locale" content="es_MX">
+    <meta property="og:site_name" content="RockStar Store">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="RockStar Store | Streetwear premium">
+    <meta name="twitter:description" content="Tienda digital streetwear con catalogo actualizado y pedidos por WhatsApp.">
+    <meta name="twitter:image" content="./assets/page/Banner_background.png">
     <link rel="icon" type="image/png" href="./assets/page/favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,6 +29,23 @@
     <link rel="stylesheet" href="./css/theme.css">
     <link rel="stylesheet" href="./css/animations.css">
     <link rel="stylesheet" href="./css/main.css">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "ClothingStore",
+        "name": "RockStar Store",
+        "description": "Tienda digital de streetwear con catalogo actualizado y pedidos por WhatsApp.",
+        "image": "./assets/page/Banner_background.png",
+        "logo": "./assets/page/footer_logo.png",
+        "url": "./index.html",
+        "sameAs": [],
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "./tienda.html?search={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
   </head>
   <body x-data="appStore('home')" x-init="init(); setTimeout(() => window.lucide && window.lucide.createIcons(), 0)" x-cloak>
     <div class="site-shell">
@@ -180,15 +208,19 @@
             <img class="footer-logo" src="./assets/page/footer_logo.png" alt="RockStar Store">
           </div>
           <div class="footer-column footer-links">
-            <a href="#">Politicas del servicio</a>
-            <a href="#">Terminos y condiciones</a>
+            <a href="./politicas.html">Politicas del servicio</a>
+            <a href="./terminos.html">Terminos y condiciones</a>
           </div>
           <div class="footer-column">
             <div>
               <p class="mb-0 fs-4">Redes Sociales</p>
               <div class="socials">
-                <img src="./assets/page/brand-facebook.png" alt="Facebook">
-                <img src="./assets/page/brand-instagram.png" alt="Instagram">
+                <a href="https://www.facebook.com/share/14gv5KYt6cu/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" aria-label="Facebook RockStar Store">
+                  <img src="./assets/page/brand-facebook.png" alt="Facebook">
+                </a>
+                <a href="https://www.instagram.com/streetwear_rockstar?igsh=NTc4MTIwNjQ2YQ%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" aria-label="Instagram RockStar Store">
+                  <img src="./assets/page/brand-instagram.png" alt="Instagram">
+                </a>
                 <img src="./assets/page/brand-tiktok.png" alt="TikTok">
               </div>
             </div>

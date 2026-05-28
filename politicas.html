@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Politicas del servicio | RockStar Store</title>
+    <meta name="description" content="Politicas de servicio de RockStar Store: pedidos, disponibilidad, entregas, cambios y atencion al cliente.">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#070707" media="(prefers-color-scheme: dark)">
+    <meta name="color-scheme" content="light dark">
+    <meta property="og:title" content="Politicas del servicio | RockStar Store">
+    <meta property="og:description" content="Informacion sobre pedidos, entregas, disponibilidad y cambios en RockStar Store.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="./assets/page/Banner_background.png">
+    <meta property="og:image:alt" content="RockStar Store">
+    <meta property="og:locale" content="es_MX">
+    <meta property="og:site_name" content="RockStar Store">
+    <link rel="icon" type="image/png" href="./assets/page/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./css/theme.css">
+    <link rel="stylesheet" href="./css/animations.css">
+    <link rel="stylesheet" href="./css/main.css">
+  </head>
+  <body x-data="legalPage()" x-init="initTheme()" x-cloak>
+    <div class="site-shell">
+      <header class="site-header store-header" @keydown.escape.window="closeMobileMenu()">
+        <div class="container-wide nav-inner">
+          <a class="header-logo-link" href="./index.html" aria-label="Ir al inicio">
+            <img src="./assets/page/footer_logo.png" alt="RockStar Store">
+          </a>
+          <nav class="nav-links" id="primary-navigation" :class="{ 'is-open': mobileMenuOpen }" aria-label="Navegacion principal">
+            <a class="nav-link" href="./index.html" @click="closeMobileMenu()">Inicio</a>
+            <a class="nav-link" href="./tienda.html" @click="closeMobileMenu()">Tienda</a>
+            <a class="nav-link" href="./index.html#contacto" @click="closeMobileMenu()">Contacto</a>
+          </nav>
+          <div class="nav-actions">
+            <button class="icon-button menu-toggle" type="button" title="Abrir menu" aria-controls="primary-navigation" :aria-expanded="mobileMenuOpen.toString()" @click.stop="toggleMobileMenu()">
+              <i class="bi" :class="mobileMenuOpen ? 'bi-x-lg' : 'bi-list'" aria-hidden="true"></i>
+            </button>
+            <button class="icon-button" type="button" title="Cambiar tema" @click="toggleTheme()">
+              <i class="bi" :class="theme === 'dark' ? 'bi-sun' : 'bi-moon-stars'" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main class="container-wide legal-page">
+        <h1 class="page-title">Politicas del servicio</h1>
+        <section class="legal-content" aria-label="Politicas del servicio RockStar Store">
+          <p>
+            En RockStar Store buscamos que cada pedido sea claro, rapido y confiable. Estas politicas explican como
+            gestionamos pedidos, disponibilidad, entregas y cambios realizados a traves de nuestra tienda digital.
+          </p>
+
+          <h2>Pedidos</h2>
+          <p>
+            Los pedidos se generan mediante WhatsApp con el detalle de productos, tallas, cantidades, datos del cliente
+            y punto de entrega. El pedido queda sujeto a confirmacion final por parte de RockStar Store.
+          </p>
+
+          <h2>Disponibilidad</h2>
+          <p>
+            El catalogo se actualiza con base en la informacion disponible al momento de consulta. En caso de que una
+            prenda o talla se agote antes de confirmar el pedido, se notificara al cliente para ofrecer alternativas.
+          </p>
+
+          <h2>Precios</h2>
+          <p>
+            Los precios publicados pueden variar por talla, modelo o promocion. El total final se confirma antes de
+            cerrar la compra por WhatsApp.
+          </p>
+
+          <h2>Entregas</h2>
+          <p>
+            Las condiciones de entrega, horarios, zonas disponibles y posibles costos adicionales se coordinan
+            directamente con el cliente durante la confirmacion del pedido.
+          </p>
+
+          <h2>Cambios</h2>
+          <p>
+            Los cambios quedan sujetos a disponibilidad, estado de la prenda y revision del caso. Para solicitar un
+            cambio, el cliente debe contactar a RockStar Store con el detalle del pedido.
+          </p>
+
+          <h2>Atencion</h2>
+          <p>
+            Para dudas sobre productos, tallas, entregas o pedidos, el cliente puede comunicarse mediante el formulario
+            de contacto o directamente por WhatsApp.
+          </p>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="footer-main">
+          <div class="footer-column">
+            <img class="footer-logo" src="./assets/page/footer_logo.png" alt="RockStar Store">
+          </div>
+          <div class="footer-column footer-links">
+            <a href="./politicas.html">Politicas del servicio</a>
+            <a href="./terminos.html">Terminos y condiciones</a>
+          </div>
+          <div class="footer-column">
+            <div>
+              <p class="mb-0 fs-4">Redes Sociales</p>
+              <div class="socials">
+                <a href="https://www.facebook.com/share/14gv5KYt6cu/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" aria-label="Facebook RockStar Store">
+                  <img src="./assets/page/brand-facebook.png" alt="Facebook">
+                </a>
+                <a href="https://www.instagram.com/streetwear_rockstar?igsh=NTc4MTIwNjQ2YQ%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" aria-label="Instagram RockStar Store">
+                  <img src="./assets/page/brand-instagram.png" alt="Instagram">
+                </a>
+                <img src="./assets/page/brand-tiktok.png" alt="TikTok">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="footer-copy">Todos los Derechos Reservados, Rockstar 2026</div>
+      </footer>
+    </div>
+
+    <script src="./js/config.js" defer></script>
+    <script src="./js/theme.js" defer></script>
+    <script src="./js/legal.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  </body>
+</html>

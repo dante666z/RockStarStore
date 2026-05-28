@@ -7,11 +7,23 @@
     <title>Tienda | RockStar Store</title>
     <meta name="description"
         content="Catalogo completo de RockStar Store. Filtra por categoria y talla, agrega al carrito y finaliza tu pedido por WhatsApp.">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#070707" media="(prefers-color-scheme: dark)">
+    <meta name="color-scheme" content="light dark">
     <meta property="og:title" content="Tienda | RockStar Store">
     <meta property="og:description"
         content="Catalogo streetwear con variantes por talla, carrito y pedido directo por WhatsApp.">
     <meta property="og:type" content="website">
     <meta property="og:image" content="./assets/page/Banner_background.png">
+    <meta property="og:image:alt" content="Catalogo RockStar Store">
+    <meta property="og:locale" content="es_MX">
+    <meta property="og:site_name" content="RockStar Store">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Tienda | RockStar Store">
+    <meta name="twitter:description"
+        content="Catalogo streetwear con filtros por categoria y talla, carrito y pedido directo por WhatsApp.">
+    <meta name="twitter:image" content="./assets/page/Banner_background.png">
     <link rel="icon" type="image/png" href="./assets/page/favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,6 +35,25 @@
     <link rel="stylesheet" href="./css/theme.css">
     <link rel="stylesheet" href="./css/animations.css">
     <link rel="stylesheet" href="./css/main.css">
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": "Tienda | RockStar Store",
+            "description": "Catalogo completo de RockStar Store con filtros por categoria y talla.",
+            "url": "./tienda.html",
+            "isPartOf": {
+                "@type": "WebSite",
+                "name": "RockStar Store",
+                "url": "./index.html"
+            },
+            "mainEntity": {
+                "@type": "ItemList",
+                "name": "Catalogo RockStar Store",
+                "itemListOrder": "https://schema.org/ItemListUnordered"
+            }
+        }
+    </script>
 </head>
 
 <body x-data="appStore('store')" x-init="init(); setTimeout(() => window.lucide && window.lucide.createIcons(), 0)"
@@ -126,15 +157,19 @@
                     <img class="footer-logo" src="./assets/page/footer_logo.png" alt="RockStar Store">
                 </div>
                 <div class="footer-column footer-links">
-                    <a href="#">Politicas del servicio</a>
-                    <a href="#">Terminos y condiciones</a>
+                    <a href="./politicas.html">Politicas del servicio</a>
+                    <a href="./terminos.html">Terminos y condiciones</a>
                 </div>
                 <div class="footer-column">
                     <div>
                         <p class="mb-0 fs-4">Redes Sociales</p>
                         <div class="socials">
-                            <img src="./assets/page/brand-facebook.png" alt="Facebook">
-                            <img src="./assets/page/brand-instagram.png" alt="Instagram">
+                            <a href="https://www.facebook.com/share/14gv5KYt6cu/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" aria-label="Facebook RockStar Store">
+                                <img src="./assets/page/brand-facebook.png" alt="Facebook">
+                            </a>
+                            <a href="https://www.instagram.com/streetwear_rockstar?igsh=NTc4MTIwNjQ2YQ%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" aria-label="Instagram RockStar Store">
+                                <img src="./assets/page/brand-instagram.png" alt="Instagram">
+                            </a>
                             <img src="./assets/page/brand-tiktok.png" alt="TikTok">
                         </div>
                     </div>
