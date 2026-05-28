@@ -107,7 +107,7 @@ button {
   gap: clamp(12px, 2vw, 28px);
 }
 
-.menu-toggle {
+.icon-button.menu-toggle {
   display: none;
 }
 
@@ -939,7 +939,7 @@ button {
     gap: 6px;
   }
 
-  .menu-toggle {
+  .icon-button.menu-toggle {
     display: inline-grid;
   }
 
