@@ -184,6 +184,7 @@ button {
   grid-template-columns: 1.2fr 1fr;
   align-items: center;
   padding: clamp(20px, 5vw, 72px);
+  background-color: rgba(0, 0, 0, 0.4);
 }
 
 .hero-logo {
@@ -372,6 +373,12 @@ button {
   transform: translateY(-2px);
 }
 
+.product-card .size-pill:not(:disabled):not(.is-disabled):hover,
+.product-card .size-pill:not(:disabled):not(.is-disabled):focus {
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+}
+
 .size-pill.is-active,
 .filter-pill.is-active {
   background: var(--color-primary);
@@ -408,6 +415,12 @@ button {
 .primary-button:hover,
 .secondary-button:hover {
   transform: translateY(-2px);
+}
+
+.primary-button:not(:disabled):hover,
+.primary-button:not(:disabled):focus {
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
 }
 
 .primary-button:disabled {
@@ -461,8 +474,8 @@ button {
 
 .form-label {
   display: block;
-  margin-bottom: 8px;
   font-weight: 700;
+  padding: 10px 0px;
 }
 
 .field {
