@@ -212,3 +212,31 @@ MOCK_CATALOG.homeProducts = MOCK_CATALOG.products
   .filter((product) => product.show_home)
   .sort((a, b) => Number(a.home_order || 0) - Number(b.home_order || 0))
   .slice(0, CONFIG.HOME_PRODUCTS_LIMIT);
+
+MOCK_CATALOG.products.forEach((product, productIndex) => {
+  const colorId = `mock-color-${productIndex + 1}`;
+  const color = {
+    id: colorId,
+    product_id: product.id,
+    name: "Unico",
+    hex: "#111111",
+    order: 1,
+    back_image: product.image,
+    front_image: "",
+    default_image: product.image,
+    images: product.image
+      ? [{ view: "back", label: "Espalda", image: product.image, is_default: true }]
+      : [],
+    variants: product.variants.map((variant) => ({
+      ...variant,
+      product_id: product.id,
+      color_id: colorId,
+      color: "Unico",
+      color_hex: "#111111"
+    }))
+  };
+
+  product.default_color_id = colorId;
+  product.colors = [color];
+  product.variants = color.variants;
+});
