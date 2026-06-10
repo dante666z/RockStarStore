@@ -62,7 +62,7 @@
     </script>
 </head>
 
-<body x-data="appStore('store')" x-init="init(); setTimeout(() => window.lucide && window.lucide.createIcons(), 0)"
+<body x-data="appStore('store')" x-init="init(); setTimeout(() => window.lucide && window.lucide.createIcons(), 0)" @keydown.escape.window="closeMobileMenu(); closeProductModal()" @keydown.window="handleProductModalKey($event)"
     x-cloak>
     <div class="site-shell">
         <header class="site-header store-header" @keydown.escape.window="closeMobileMenu()">
@@ -127,29 +127,18 @@
                 x-show="!loading && !error && filteredProducts().length" aria-label="Catalogo completo">
                 <template x-for="product in filteredProducts()" :key="product.id">
                     <article class="product-card">
-                        <div class="product-media">
+                        <button class="product-media product-media-button" type="button" :aria-label="`Ver opciones de ${product.name}`" @click="openProductModal(product, $event)">
                             <span class="product-badge" x-show="product.badge" x-text="product.badge"></span>
                             <img :src="imageFor(product)" :alt="product.name" @error="handleImageError($event)">
-                        </div>
+                        </button>
                         <div class="product-info">
                             <h2 class="product-name" x-text="product.name"></h2>
                             <p class="product-price" x-text="priceLabel(product)"></p>
                             <p class="product-desc" x-text="product.description"></p>
-                            <div class="size-row" aria-label="Seleccionar talla">
-                                <template x-for="variant in product.variants" :key="variant.id">
-                                    <button class="size-pill" type="button"
-                                        :class="{ 'is-active': isVariantSelected(product, variant), 'is-disabled': !variant.available || Number(variant.stock) <= 0 }"
-                                        :disabled="!variant.available || Number(variant.stock) <= 0"
-                                        :title="Number(variant.stock) <= 0 || !variant.available ? 'Sin stock' : `${variant.stock} disponibles`"
-                                        @click="selectVariant(product, variant)">
-                                        <span x-text="variant.size"></span>
-                                    </button>
-                                </template>
-                            </div>
                             <button class="primary-button product-action" type="button"
                                 :disabled="!productHasStock(product)"
-                                @click="addToCart(product, selectedVariant(product))">
-                                Agregar al carrito
+                                @click="openProductModal(product, $event)">
+                                Ver producto
                             </button>
                         </div>
                     </article>
@@ -184,6 +173,76 @@
             <div class="footer-copy">Todos los Derechos Reservados, Rockstar 2026</div>
         </footer>
 
+        <div class="product-modal-backdrop" x-show="isProductModalOpen" x-transition.opacity @click="closeProductModal()"></div>
+        <section class="product-detail-modal" x-show="isProductModalOpen && activeProduct" x-transition.opacity role="dialog" aria-modal="true" :aria-label="activeProduct ? `Opciones de ${activeProduct.name}` : 'Detalle del producto'" @keydown.tab="trapProductModalFocus($event)">
+            <button class="product-modal-close" x-ref="productModalClose" type="button" @click="closeProductModal()" aria-label="Cerrar detalle">
+                <i data-lucide="x"></i>
+            </button>
+
+            <div class="product-modal-gallery" :class="{ 'has-multiple-colors': modalColors().length > 1 }">
+                <button class="product-side-preview is-previous" type="button" x-show="modalColors().length > 1" @click="prevProductColor()" aria-label="Color anterior">
+                    <img :src="colorPreviewImage(adjacentColor(-1))" alt="" @error="handleImageError($event)">
+                </button>
+
+                <div class="product-main-view">
+                    <div class="product-flip-scene">
+                        <div class="product-flip-card" :class="{ 'is-flipped': activeView === 'front' }">
+                            <div class="product-flip-face is-back">
+                                <img :src="modalBackImage()" :alt="activeProduct ? `${activeProduct.name}, vista trasera` : ''" @error="handleImageError($event)">
+                            </div>
+                            <div class="product-flip-face is-front">
+                                <img :src="modalFrontImage()" :alt="activeProduct ? `${activeProduct.name}, vista frontal` : ''" @error="handleImageError($event)">
+                            </div>
+                        </div>
+                    </div>
+                    <button class="flip-product-button" type="button" x-show="canFlipProduct()" @click="flipProductView()" :aria-label="activeView === 'back' ? 'Ver frente' : 'Ver espalda'">
+                        <i data-lucide="refresh-cw"></i>
+                        <span x-text="activeView === 'back' ? 'Ver frente' : 'Ver espalda'"></span>
+                    </button>
+                </div>
+
+                <button class="product-side-preview is-next" type="button" x-show="modalColors().length > 1" @click="nextProductColor()" aria-label="Color siguiente">
+                    <img :src="colorPreviewImage(adjacentColor(1))" alt="" @error="handleImageError($event)">
+                </button>
+
+                <div class="product-color-arrows" x-show="modalColors().length > 1">
+                    <button type="button" @click="prevProductColor()" aria-label="Color anterior"><i data-lucide="chevron-left"></i></button>
+                    <button type="button" @click="nextProductColor()" aria-label="Color siguiente"><i data-lucide="chevron-right"></i></button>
+                </div>
+            </div>
+
+            <div class="product-modal-info">
+                <h2 x-text="activeProduct?.name"></h2>
+                <p class="product-modal-price" x-text="modalPriceLabel()"></p>
+                <p class="product-modal-description" x-text="activeProduct?.description"></p>
+
+                <div class="product-option-group">
+                    <span class="product-option-label">Color</span>
+                    <div class="color-options">
+                        <template x-for="(color, index) in modalColors()" :key="color.id">
+                            <button class="color-option" type="button" :class="{ 'is-active': activeColorIndex === index }" @click="selectProductColor(index)" :aria-label="`Seleccionar color ${color.name}`">
+                                <span class="color-swatch" :style="`--swatch-color: ${color.hex || '#888888'}`"></span>
+                                <span x-text="color.name"></span>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="product-option-group">
+                    <span class="product-option-label">Talla</span>
+                    <div class="size-row">
+                        <template x-for="variant in modalVariants()" :key="variant.id">
+                            <button class="size-pill" type="button" :class="{ 'is-active': isModalVariantSelected(variant), 'is-disabled': !variant.available || Number(variant.stock) <= 0 }" :disabled="!variant.available || Number(variant.stock) <= 0" @click="selectModalVariant(variant)" x-text="variant.size"></button>
+                        </template>
+                    </div>
+                </div>
+
+                <button class="primary-button product-modal-action" type="button" :disabled="!selectedModalVariant" @click="addModalSelectionToCart()">
+                    Agregar al carrito
+                </button>
+            </div>
+        </section>
+
         <template x-if="isCartOpen">
             <div class="drawer-backdrop" @click="closeCart()"></div>
         </template>
@@ -207,6 +266,8 @@
                         <div>
                             <h3 x-text="item.name"></h3>
                             <p class="cart-meta">
+                                <span x-show="item.selectedColor" x-text="item.selectedColor"></span>
+                                <span x-show="item.selectedColor"> · </span>
                                 <span x-text="`Talla ${item.selectedSize}`"></span>
                                 <span x-text="` · ${formatMoney(item.price)}`"></span>
                             </p>
@@ -250,7 +311,7 @@
                             <template x-for="item in items" :key="item.variantId">
                                 <div class="summary-line">
                                     <span><strong x-text="item.name"></strong><br><small
-                                            x-text="`Talla ${item.selectedSize} · Cantidad ${item.quantity}`"></small></span>
+                                            x-text="`${item.selectedColor ? `Color ${item.selectedColor} · ` : ''}Talla ${item.selectedSize} · Cantidad ${item.quantity}`"></small></span>
                                     <strong x-text="formatMoney(subtotal(item))"></strong>
                                 </div>
                             </template>
