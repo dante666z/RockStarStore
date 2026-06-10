@@ -1,6 +1,6 @@
 # RockStar Store
 
-Tienda digital mobile-first construida con HTML5, CSS3, Bootstrap 5, JavaScript ES6+ y Alpine.js. Incluye home, tienda separada, catalogo dinamico por color y talla, modal de producto con vistas frente/espalda, carrito persistente, checkout y pedido por WhatsApp.
+Tienda digital mobile-first construida con HTML5, CSS3, Bootstrap 5, JavaScript ES6+, Alpine.js, Lucide y Splide 4.1.3. Incluye home, tienda separada, catalogo dinamico por color y talla, carruseles tactiles, modal de producto con vistas frente/espalda, carrito persistente, checkout y pedido por WhatsApp.
 
 ## Estructura
 
@@ -13,8 +13,13 @@ assets/
 css/
 js/
 data/
+vendor/
 apps-script/
 ```
+
+Las dependencias visuales y fuentes se almacenan localmente en `vendor/` para evitar que la interfaz dependa de un CDN durante la carga. Las versiones y licencias se documentan en `vendor/README.md`. Los servicios externos del catalogo, imagenes, redes sociales y WhatsApp siguen requiriendo conexion.
+
+El carrusel destacado conserva autoplay y paginacion; la galeria del modal permite cambiar de color mediante swipe, flechas de escritorio, teclado o los selectores de color.
 
 ## Configuracion Frontend
 
@@ -196,7 +201,9 @@ carrito y checkout
 WhatsApp
 ```
 
-El modal abre con el primer color configurado y prioriza la imagen trasera. Cuando existen ambas vistas, el boton `Ver frente` / `Ver espalda` ejecuta un giro 3D tipo carta. Al cambiar de color se restablece la vista trasera y se limpia la talla seleccionada.
+El modal abre con el primer color configurado y prioriza la imagen trasera. Cuando existen ambas vistas, el boton `Ver frente` / `Ver espalda` ejecuta un giro 3D tipo carta. Al cambiar de color mediante swipe, flechas, teclado o selector se restablece la vista trasera y se limpia la talla seleccionada. En movil las flechas se ocultan y la navegacion principal se realiza con el dedo.
+
+El boton con icono de ojo abre un visor de pantalla completa para inspeccionar el color activo en escritorio o movil. Esta disponible tanto en las cards del catalogo como dentro del modal. El visor permite alternar frente/espalda, pero no cambia color, talla ni carrito; debe cerrarse para continuar la seleccion.
 
 El carrito usa `rockstar_cart_v2` y guarda color, talla, SKU e imagen principal del color.
 
