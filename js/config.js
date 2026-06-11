@@ -10,6 +10,6 @@ const CONFIG = {
   PLACEHOLDER_IMAGE: "./assets/page/banner_logo.png",
   DRIVE_IMAGE_SIZE: "w1000",
   HOME_PRODUCTS_LIMIT: 6,
-  CART_STORAGE_KEY: "rockstar_cart_v1",
+  CART_STORAGE_KEY: "rockstar_cart_v2",
   THEME_STORAGE_KEY: "rockstar_theme"
 };

@@ -1,10 +1,11 @@
 const CONFIG = {
   SPREADSHEET_ID: "1P2QnVxyNW8q9TyQRV_2potK_M6mNpD7acqRgPM6wCKQ",
   PRODUCTS_SHEET: "Products",
+  COLORS_SHEET: "ProductColors",
   VARIANTS_SHEET: "Variants",
-  CACHE_KEY: "PRODUCTS_CACHE_V1",
+  CACHE_KEY: "PRODUCTS_CACHE_V2",
   CACHE_TIME: 4 * 60 * 60, // 4 horas
-  REFRESH_KEY: "rockStar2026" 
+  REFRESH_KEY: "rockStar2026"
 };
 
 function doGet(e) {
@@ -68,10 +69,15 @@ function doGet(e) {
     const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
 
     const productsSheet = ss.getSheetByName(CONFIG.PRODUCTS_SHEET);
+    const colorsSheet = ss.getSheetByName(CONFIG.COLORS_SHEET);
     const variantsSheet = ss.getSheetByName(CONFIG.VARIANTS_SHEET);
 
     if (!productsSheet) {
       throw new Error("No existe la hoja: " + CONFIG.PRODUCTS_SHEET);
+    }
+
+    if (!colorsSheet) {
+      throw new Error("No existe la hoja: " + CONFIG.COLORS_SHEET);
     }
 
     if (!variantsSheet) {
@@ -79,23 +85,28 @@ function doGet(e) {
     }
 
     const productsData = getSheetData(productsSheet);
+    const colorsData = getSheetData(colorsSheet);
     const variantsData = getSheetData(variantsSheet);
 
     Logger.log("Productos leídos: " + productsData.length);
+    Logger.log("Colores leídos: " + colorsData.length);
     Logger.log("Variantes leídas: " + variantsData.length);
 
     const products = transformProducts(productsData);
+    const colors = transformProductColors(colorsData);
     const variants = transformVariants(variantsData);
 
     Logger.log("Productos activos transformados: " + products.length);
+    Logger.log("Colores activos transformados: " + colors.length);
     Logger.log("Variantes transformadas: " + variants.length);
 
-    const result = buildResponse(products, variants);
+    const result = buildResponse(products, colors, variants);
 
     Logger.log("Productos finales: " + result.products.length);
     Logger.log("Productos destacados: " + result.featuredProducts.length);
     Logger.log("Productos home: " + result.homeProducts.length);
     Logger.log("Categorías: " + result.categories.join(", "));
+    Logger.log("Advertencias de datos: " + result.dataWarnings.length);
 
     const response = {
       ...result,
@@ -103,7 +114,18 @@ function doGet(e) {
         fromCache: false,
         refreshed: isRefreshAllowed,
         generatedAt: new Date().toISOString(),
-        cacheTimeSeconds: CONFIG.CACHE_TIME
+        cacheTimeSeconds: CONFIG.CACHE_TIME,
+        counts: {
+          products: result.products.length,
+          colors: result.products.reduce(
+            (total, product) => total + product.colors.length,
+            0
+          ),
+          variants: result.products.reduce(
+            (total, product) => total + product.variants.length,
+            0
+          )
+        }
       }
     };
 
@@ -147,6 +169,7 @@ function getSheetData(sheet) {
       const obj = {};
 
       headers.forEach((header, index) => {
+        if (!header) return;
         obj[header] = row[index];
       });
 
@@ -166,7 +189,6 @@ function transformProducts(products) {
       name: toStringValue(product.name),
       description: toStringValue(product.description),
       category: toStringValue(product.category),
-      image: toStringValue(product.image),
       badge: toStringValue(product.badge),
       featured: toBoolean(product.featured),
       featured_order: toNumber(product.featured_order),
@@ -177,28 +199,111 @@ function transformProducts(products) {
     .filter(product => product.id);
 }
 
+function transformProductColors(colors) {
+  return colors
+    .filter(color => {
+      const status = String(color.status || "").toLowerCase().trim();
+      return status === "active" || status === "activo";
+    })
+    .map(color => ({
+      id: toNumber(color.id),
+      product_id: toNumber(color.product_id),
+      name: toStringValue(color.color),
+      hex: toStringValue(color.color_hex),
+      order: toNumber(color.color_order),
+      back_image: toStringValue(color.back_image),
+      front_image: toStringValue(color.front_image),
+      status: toStringValue(color.status)
+    }))
+    .filter(color => color.id && color.product_id);
+}
+
 function transformVariants(variants) {
   return variants
     .map(variant => ({
       id: toNumber(variant.id),
       product_id: toNumber(variant.product_id),
+      color_id: toNumber(variant.color_id),
       size: toStringValue(variant.size || variant.product_size),
       price: toNumber(variant.price),
       stock: toNumber(variant.stock),
       sku: toStringValue(variant.sku),
       available: toBoolean(variant.available)
     }))
-    .filter(variant => variant.id && variant.product_id);
+    .filter(variant => variant.id && variant.product_id && variant.color_id);
 }
 
-function buildResponse(products, variants) {
+function buildResponse(products, colors, variants) {
+  const dataWarnings = [];
+  const productById = new Map(products.map(product => [product.id, product]));
+  const colorById = new Map(colors.map(color => [color.id, color]));
+
+  colors.forEach(color => {
+    if (!productById.has(color.product_id)) {
+      dataWarnings.push(
+        "Color " + color.id + " referencia product_id inexistente o inactivo: " + color.product_id
+      );
+    }
+
+    if (!color.back_image && !color.front_image) {
+      dataWarnings.push("Color " + color.id + " no tiene imagen trasera ni frontal.");
+    }
+  });
+
+  variants.forEach(variant => {
+    const color = colorById.get(variant.color_id);
+
+    if (!productById.has(variant.product_id)) {
+      dataWarnings.push(
+        "Variante " + variant.id + " referencia product_id inexistente o inactivo: " + variant.product_id
+      );
+    }
+
+    if (!color) {
+      dataWarnings.push(
+        "Variante " + variant.id + " referencia color_id inexistente o inactivo: " + variant.color_id
+      );
+    } else if (color.product_id !== variant.product_id) {
+      dataWarnings.push(
+        "Variante " + variant.id + " no coincide con el product_id de su color."
+      );
+    }
+  });
+
   const productsWithVariants = products.map(product => {
-    const productVariants = variants
-      .filter(variant => variant.product_id === product.id)
-      .sort((a, b) => naturalSort(a.size, b.size));
+    const productColors = colors
+      .filter(color => color.product_id === product.id)
+      .sort((a, b) => sortByOrder(a.order, b.order))
+      .map(color => {
+        const colorVariants = variants
+          .filter(variant =>
+            variant.product_id === product.id &&
+            variant.color_id === color.id
+          )
+          .sort((a, b) => naturalSort(a.size, b.size))
+          .map(variant => ({
+            ...variant,
+            color: color.name,
+            color_hex: color.hex
+          }));
+
+        return {
+          ...color,
+          default_image: color.back_image || color.front_image || "",
+          images: buildColorImages(color),
+          variants: colorVariants
+        };
+      });
+
+    const productVariants = productColors.flatMap(color => color.variants);
+    const defaultColor = productColors[0] || null;
 
     return {
       ...product,
+      // Compatibilidad temporal con el frontend actual.
+      image: defaultColor ? defaultColor.default_image : "",
+      default_color_id: defaultColor ? defaultColor.id : 0,
+      colors: productColors,
       variants: productVariants
     };
   });
@@ -224,8 +329,33 @@ function buildResponse(products, variants) {
     products: productsWithVariants,
     featuredProducts,
     homeProducts,
-    categories
+    categories,
+    dataWarnings
   };
+}
+
+function buildColorImages(color) {
+  const images = [];
+
+  if (color.back_image) {
+    images.push({
+      view: "back",
+      label: "Espalda",
+      image: color.back_image,
+      is_default: true
+    });
+  }
+
+  if (color.front_image) {
+    images.push({
+      view: "front",
+      label: "Frente",
+      image: color.front_image,
+      is_default: !color.back_image
+    });
+  }
+
+  return images;
 }
 
 function jsonResponse(data) {

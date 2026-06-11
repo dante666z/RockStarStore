@@ -33,14 +33,44 @@ function activeVariants(product) {
   return (product?.variants || []).filter((variant) => variant.available && Number(variant.stock) > 0);
 }
 
+function productColors(product) {
+  return Array.isArray(product?.colors) ? product.colors : [];
+}
+
+function defaultProductColor(product) {
+  const colors = productColors(product);
+  if (!colors.length) return null;
+
+  return colors.find((color) => color.id === product.default_color_id) || colors[0];
+}
+
+function colorDefaultImage(color) {
+  return color?.back_image || color?.front_image || color?.default_image || "";
+}
+
 function productImage(product) {
-  return getDriveImageUrl(product?.image);
+  const defaultColor = defaultProductColor(product);
+  return getDriveImageUrl(colorDefaultImage(defaultColor) || product?.image);
 }
 
 function onImageError(event) {
-  event.currentTarget.onerror = null;
-  event.currentTarget.src = CONFIG.PLACEHOLDER_IMAGE;
-  event.currentTarget.classList.add("is-default-image");
+  const image = event.currentTarget;
+  const currentSrc = String(image.currentSrc || image.src || "");
+
+  if (!image.dataset.driveFallbackTried && currentSrc.includes("drive.google.com/thumbnail")) {
+    image.dataset.driveFallbackTried = "true";
+    const url = new URL(currentSrc);
+    const fileId = url.searchParams.get("id");
+
+    if (fileId) {
+      image.src = getDriveViewUrl(fileId);
+      return;
+    }
+  }
+
+  image.onerror = null;
+  image.src = CONFIG.PLACEHOLDER_IMAGE;
+  image.classList.add("is-default-image");
 }
 
 function slugify(value) {

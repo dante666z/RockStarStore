@@ -3,6 +3,7 @@ function cartStore() {
     items: [],
     isCartOpen: false,
     isCheckoutOpen: false,
+    cartTrigger: null,
     feedback: "",
     checkout: {
       name: "",
@@ -24,7 +25,8 @@ function cartStore() {
       localStorage.setItem(CONFIG.CART_STORAGE_KEY, JSON.stringify(this.items));
     },
 
-    openCart() {
+    openCart(event = null) {
+      this.cartTrigger = event?.currentTarget || null;
       this.isCartOpen = true;
       document.body.classList.add("drawer-open");
       this.refreshIcons();
@@ -33,6 +35,9 @@ function cartStore() {
     closeCart() {
       this.isCartOpen = false;
       document.body.classList.remove("drawer-open");
+      const trigger = this.cartTrigger;
+      this.cartTrigger = null;
+      window.setTimeout(() => trigger?.focus(), 0);
     },
 
     openCheckout() {
@@ -46,7 +51,7 @@ function cartStore() {
       this.isCheckoutOpen = false;
     },
 
-    addToCart(product, variant) {
+    addToCart(product, variant, color = null) {
       if (!variant) {
         this.flash("Selecciona una talla primero.");
         return;
@@ -70,7 +75,10 @@ function cartStore() {
           productId: product.id,
           slug: product.slug,
           name: product.name,
-          image: product.image,
+          colorId: color?.id || variant.color_id || null,
+          selectedColor: color?.name || variant.color || "Unico",
+          selectedColorHex: color?.hex || variant.color_hex || "",
+          image: colorDefaultImage(color) || product.image,
           selectedSize: variant.size,
           variantId: variant.id,
           sku: variant.sku,
@@ -139,6 +147,9 @@ function cartStore() {
 
       this.items.forEach((item) => {
         lines.push(`- ${item.name}`);
+        if (item.selectedColor) {
+          lines.push(`  Color: ${item.selectedColor}`);
+        }
         lines.push(`  Talla: ${item.selectedSize}`);
         lines.push(`  Cantidad: ${item.quantity}`);
         lines.push(`  Precio: ${formatMoney(item.price)}`);

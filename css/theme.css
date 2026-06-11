@@ -12,6 +12,13 @@
   --color-danger: #b52222;
   --color-success: #166534;
   --color-overlay: rgba(0, 0, 0, 0.45);
+  --color-modal-bg: #ffffff;
+  --color-modal-text: #050505;
+  --color-modal-muted: #5f5f5f;
+  --color-modal-surface: #e8e8e8;
+  --color-modal-control: #ffffff;
+  --color-modal-control-text: #050505;
+  --color-modal-overlay: rgba(0, 0, 0, 0.62);
   --shadow-soft: 0 24px 60px rgba(0, 0, 0, 0.14);
   --container: min(100% - 32px, 1600px);
   --radius: 6px;
@@ -27,6 +34,13 @@
   --color-border: #4c4c4c;
   --color-primary: #7377ff;
   --color-overlay: rgba(0, 0, 0, 0.72);
+  --color-modal-bg: #030303;
+  --color-modal-text: #ffffff;
+  --color-modal-muted: #b8b8b8;
+  --color-modal-surface: #e8e8e8;
+  --color-modal-control: #ffffff;
+  --color-modal-control-text: #050505;
+  --color-modal-overlay: rgba(0, 0, 0, 0.82);
   --shadow-soft: 0 24px 70px rgba(0, 0, 0, 0.42);
 }
 
