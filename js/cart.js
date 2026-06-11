@@ -3,6 +3,7 @@ function cartStore() {
     items: [],
     isCartOpen: false,
     isCheckoutOpen: false,
+    cartTrigger: null,
     feedback: "",
     checkout: {
       name: "",
@@ -24,7 +25,8 @@ function cartStore() {
       localStorage.setItem(CONFIG.CART_STORAGE_KEY, JSON.stringify(this.items));
     },
 
-    openCart() {
+    openCart(event = null) {
+      this.cartTrigger = event?.currentTarget || null;
       this.isCartOpen = true;
       document.body.classList.add("drawer-open");
       this.refreshIcons();
@@ -33,6 +35,9 @@ function cartStore() {
     closeCart() {
       this.isCartOpen = false;
       document.body.classList.remove("drawer-open");
+      const trigger = this.cartTrigger;
+      this.cartTrigger = null;
+      window.setTimeout(() => trigger?.focus(), 0);
     },
 
     openCheckout() {

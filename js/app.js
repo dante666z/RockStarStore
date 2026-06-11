@@ -1,4 +1,11 @@
 function appStore(page = "home") {
+  let featuredCarousel = null;
+  let productCarousel = null;
+  const mutateCarouselDom = (callback) => {
+    if (window.Alpine?.mutateDom) return window.Alpine.mutateDom(callback);
+    return callback();
+  };
+
   return {
     ...themeController(),
     ...cartStore(),
@@ -12,13 +19,14 @@ function appStore(page = "home") {
     selectedCategory: "Todos",
     selectedSize: "Todos",
     isProductModalOpen: false,
+    isProductViewerOpen: false,
     activeProduct: null,
     activeColorIndex: 0,
     activeView: "back",
     selectedModalVariant: null,
     productModalTrigger: null,
-    featuredIndex: 0,
-    featuredTimer: null,
+    productViewerTrigger: null,
+    productViewerStandalone: false,
     mobileMenuOpen: false,
     contactTouched: false,
     contactForm: {
@@ -32,7 +40,7 @@ function appStore(page = "home") {
       this.initTheme();
       this.initCart();
       await this.loadCatalog();
-      this.startFeaturedCarousel();
+      this.initFeaturedCarousel();
       this.initSectionReveals();
     },
 
@@ -43,7 +51,6 @@ function appStore(page = "home") {
         const catalog = await fetchCatalog();
         this.products = catalog.products || [];
         this.featuredProducts = catalog.featuredProducts || [];
-        this.featuredIndex = 0;
         this.homeProducts = (catalog.homeProducts?.length ? catalog.homeProducts : this.products).slice(
           0,
           CONFIG.HOME_PRODUCTS_LIMIT
@@ -53,6 +60,7 @@ function appStore(page = "home") {
         this.error = "No pudimos cargar el catalogo. Intenta de nuevo en un momento.";
       } finally {
         this.loading = false;
+        this.$nextTick(() => this.refreshIcons());
       }
     },
 
@@ -60,29 +68,47 @@ function appStore(page = "home") {
       return [...new Set(products.map((product) => product.category).filter(Boolean))];
     },
 
-    startFeaturedCarousel() {
-      this.stopFeaturedCarousel();
-      if (this.page !== "home" || this.featuredProducts.length <= 1) return;
+    initFeaturedCarousel() {
+      if (this.page !== "home") return;
 
-      this.featuredTimer = window.setInterval(() => {
-        this.nextFeatured();
-      }, 3200);
+      this.$nextTick(() => {
+        featuredCarousel?.destroy(true);
+        featuredCarousel = null;
+
+        if (!window.Splide || !this.$refs.featuredCarousel || !this.featuredProducts.length) return;
+
+        featuredCarousel = new Splide(this.$refs.featuredCarousel, {
+          type: "slide",
+          perPage: 1,
+          perMove: 1,
+          rewind: true,
+          rewindByDrag: true,
+          speed: 620,
+          easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+          autoplay: this.featuredProducts.length > 1,
+          interval: 3200,
+          pauseOnHover: true,
+          pauseOnFocus: true,
+          resetProgress: true,
+          arrows: false,
+          pagination: this.featuredProducts.length > 1,
+          drag: this.featuredProducts.length > 1,
+          flickMaxPages: 1,
+          keyboard: false,
+          label: "Productos destacados"
+        });
+
+        mutateCarouselDom(() => featuredCarousel.mount());
+      });
+    },
+
+    startFeaturedCarousel() {
+      if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+      featuredCarousel?.Components?.Autoplay?.play();
     },
 
     stopFeaturedCarousel() {
-      if (!this.featuredTimer) return;
-      window.clearInterval(this.featuredTimer);
-      this.featuredTimer = null;
-    },
-
-    nextFeatured() {
-      if (!this.featuredProducts.length) return;
-      this.featuredIndex = (this.featuredIndex + 1) % this.featuredProducts.length;
-    },
-
-    goToFeatured(index) {
-      this.featuredIndex = index;
-      this.startFeaturedCarousel();
+      featuredCarousel?.Components?.Autoplay?.pause();
     },
 
     toggleMobileMenu() {
@@ -91,10 +117,6 @@ function appStore(page = "home") {
 
     closeMobileMenu() {
       this.mobileMenuOpen = false;
-    },
-
-    featuredTrackStyle() {
-      return `transform: translateX(-${this.featuredIndex * 100}%);`;
     },
 
     initSectionReveals() {
@@ -237,18 +259,76 @@ function appStore(page = "home") {
       this.stopFeaturedCarousel();
       this.$nextTick(() => {
         this.$refs.productModalClose?.focus();
+        this.initProductCarousel();
         this.refreshIcons();
       });
     },
 
     closeProductModal() {
       if (!this.isProductModalOpen) return;
+      this.closeProductViewer(false);
+      this.destroyProductCarousel();
       this.isProductModalOpen = false;
       this.activeProduct = null;
       this.selectedModalVariant = null;
       document.body.classList.remove("product-modal-open");
       this.startFeaturedCarousel();
       window.setTimeout(() => this.productModalTrigger?.focus?.(), 0);
+    },
+
+    openProductViewer(event = null) {
+      if (!this.activeProduct || !this.activeColor()) return;
+      this.productViewerTrigger = event?.currentTarget || document.activeElement;
+      this.productViewerStandalone = false;
+      this.showProductViewer();
+    },
+
+    openProductViewerFromCard(product, event = null) {
+      const colors = productColors(product);
+      if (!product || !colors.length) return;
+      this.activeProduct = product;
+      this.activeColorIndex = Math.max(
+        0,
+        colors.findIndex((color) => color.id === product.default_color_id)
+      );
+      this.resetProductView();
+      this.productViewerTrigger = event?.currentTarget || document.activeElement;
+      this.productViewerStandalone = true;
+      this.showProductViewer();
+    },
+
+    showProductViewer() {
+      this.isProductViewerOpen = true;
+      document.body.classList.add("product-viewer-open");
+      this.$nextTick(() => {
+        this.$refs.productViewerClose?.focus();
+        this.refreshIcons();
+      });
+    },
+
+    closeProductViewer(restoreFocus = true) {
+      if (!this.isProductViewerOpen) return;
+      this.isProductViewerOpen = false;
+      document.body.classList.remove("product-viewer-open");
+      const wasStandalone = this.productViewerStandalone;
+      this.productViewerStandalone = false;
+      if (wasStandalone) {
+        this.activeProduct = null;
+        this.activeColorIndex = 0;
+        this.activeView = "back";
+      }
+      if (restoreFocus) {
+        window.setTimeout(() => this.productViewerTrigger?.focus?.(), 0);
+      }
+    },
+
+    handleEscape() {
+      this.closeMobileMenu();
+      if (this.isProductViewerOpen) {
+        this.closeProductViewer();
+        return;
+      }
+      this.closeProductModal();
     },
 
     modalColors() {
@@ -260,28 +340,88 @@ function appStore(page = "home") {
     },
 
     selectProductColor(index) {
+      if (!this.modalColors()[index]) return;
+      if (productCarousel && productCarousel.index !== index) {
+        productCarousel.go(index);
+        return;
+      }
+      this.applyProductColor(index);
+    },
+
+    applyProductColor(index) {
       if (!this.modalColors()[index] || index === this.activeColorIndex) return;
       this.activeColorIndex = index;
       this.selectedModalVariant = null;
       this.resetProductView();
+      this.$nextTick(() => this.refreshIcons());
+    },
+
+    initProductCarousel() {
+      this.destroyProductCarousel();
+
+      const colors = this.modalColors();
+      if (!window.Splide || !this.$refs.productCarousel || !colors.length) return;
+
+      const hasMultipleColors = colors.length > 1;
+      productCarousel = new Splide(this.$refs.productCarousel, {
+        type: hasMultipleColors ? "loop" : "slide",
+        start: this.activeColorIndex,
+        perPage: 1,
+        perMove: 1,
+        padding: "12rem",
+        speed: 520,
+        easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+        arrows: hasMultipleColors,
+        pagination: false,
+        drag: hasMultipleColors,
+        dragMinThreshold: { mouse: 0, touch: 14 },
+        flickMaxPages: 1,
+        waitForTransition: false,
+        noDrag: ".no-drag",
+        keyboard: false,
+        slideFocus: false,
+        label: "Colores del producto",
+        breakpoints: {
+          640: {
+            arrows: false,
+            padding: "5rem",
+            dragMinThreshold: { mouse: 0, touch: 18 }
+          }
+        }
+      });
+
+      productCarousel.on("moved", (newIndex) => {
+        this.applyProductColor(newIndex);
+      });
+      mutateCarouselDom(() => productCarousel.mount());
+      this.refreshIcons();
+    },
+
+    destroyProductCarousel() {
+      if (productCarousel) {
+        mutateCarouselDom(() => productCarousel.destroy(true));
+      }
+      productCarousel = null;
     },
 
     nextProductColor() {
       const colors = this.modalColors();
       if (colors.length <= 1) return;
+      if (productCarousel) {
+        productCarousel.go(">");
+        return;
+      }
       this.selectProductColor((this.activeColorIndex + 1) % colors.length);
     },
 
     prevProductColor() {
       const colors = this.modalColors();
       if (colors.length <= 1) return;
+      if (productCarousel) {
+        productCarousel.go("<");
+        return;
+      }
       this.selectProductColor((this.activeColorIndex - 1 + colors.length) % colors.length);
-    },
-
-    adjacentColor(offset) {
-      const colors = this.modalColors();
-      if (colors.length <= 1) return null;
-      return colors[(this.activeColorIndex + offset + colors.length) % colors.length];
     },
 
     resetProductView() {
@@ -290,7 +430,10 @@ function appStore(page = "home") {
     },
 
     canFlipProduct() {
-      const color = this.activeColor();
+      return this.canFlipColor(this.activeColor());
+    },
+
+    canFlipColor(color) {
       return Boolean(color?.back_image && color?.front_image);
     },
 
@@ -299,18 +442,12 @@ function appStore(page = "home") {
       this.activeView = this.activeView === "back" ? "front" : "back";
     },
 
-    modalBackImage() {
-      const color = this.activeColor();
+    colorBackImage(color) {
       return getDriveImageUrl(color?.back_image || color?.front_image);
     },
 
-    modalFrontImage() {
-      const color = this.activeColor();
+    colorFrontImage(color) {
       return getDriveImageUrl(color?.front_image || color?.back_image);
-    },
-
-    colorPreviewImage(color) {
-      return getDriveImageUrl(colorDefaultImage(color));
     },
 
     modalVariants() {
@@ -344,7 +481,7 @@ function appStore(page = "home") {
     },
 
     handleProductModalKey(event) {
-      if (!this.isProductModalOpen) return;
+      if (!this.isProductModalOpen || this.isProductViewerOpen) return;
       if (event.key === "ArrowRight") {
         event.preventDefault();
         this.nextProductColor();
@@ -357,6 +494,15 @@ function appStore(page = "home") {
 
     trapProductModalFocus(event) {
       if (!this.isProductModalOpen || event.key !== "Tab") return;
+      this.trapFocus(event);
+    },
+
+    trapProductViewerFocus(event) {
+      if (!this.isProductViewerOpen || event.key !== "Tab") return;
+      this.trapFocus(event);
+    },
+
+    trapFocus(event) {
       const modal = event.currentTarget;
       const focusable = [...modal.querySelectorAll(
         'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
